@@ -10,57 +10,66 @@ weather=$(curl -s wttr.in/$city?format=3)
 # greetings
 greet() {
     echo "Hello $name"
-    sleep 2
-    echo "Hope you'll have a wonderful day ahead"
+    sleep 1
+    echo -e "Let's have a look at the forecast for the day!\n"
 }
 
 # weather
 weather() {
-    echo "How do you want your weather update. Based on your:"
-    echo "1. IP Location"
-    echo "2. Default Location"
-    echo "3. Manual location"
-    read location
+    echo -n "Want some weather updates? (y/n): "
+    read response
 
-    case $location in
-        1)
-            if [ $status == '"success"' ]; then
+    if [ $response == 'y' ] || [ $response == 'Y' ]; then
+
+        echo "what do you want your weather update to be based on:"
+        echo "    1. IP Location"
+        echo "    2. Default Location"
+        echo "    3. Manual location"
+        
+        echo -n "Enter your choice here: "
+        read location
+
+        case $location in
+            1)
+                if [ $status == '"success"' ]; then
+                    echo "Today's weather in $weather"
+                else 
+                    echo "Didn't find the city you live in sorry :(."
+                fi
+                ;;
+
+            2)
+                echo "Please provide your default city"
+                read dCity
+
+                # insert the city inside bashrc. If the city is already present then don't prompt for city. If the user wants to change the default location then that question should be asked in the echo above
+
+                weather=$(curl -s wttr.in/$city?format=3)
                 echo "Today's weather in $weather"
                 ;;
-            else 
-                echo "Didn't find the city you live in sorry :(."
+
+            3)
+                echo "Please provide your default city"
+                read city
+
+                weather=$(curl -s wttr.in/$city?format=3)
+                echo "Today's weather in $weather"
                 ;;
-            fi
+        esac
 
-        2)
-            echo "Please provide your default city"
-            read dCity
+    else
+        echo "Okay, wishing you with a happy day ahead"
+        return 0
+    fi
 
-            # insert the city inside bashrc. If the city is already present then don't prompt for city. If the user wants to change the default location then that question should be asked in the echo above
-
-            weather=$(curl -s wttr.in/$city?format=3)
-            echo "Today's weather in $weather"
-            ;;
-
-        3)
-            echo "Please provide your default city"
-            read city
-
-            weather=$(curl -s wttr.in/$city?format=3)
-            echo "Today's weather in $weather"
-            ;;
 }
+
+
 
 flow() {
     greet
     sleep 2
-    
-    echo "Want some weather updates? (y/n)"
-    read response
-
-    if [ $response == 'y' || $response == 'Y' ]; then
-        weather
-    fi
+    weather
 }
 
 flow
