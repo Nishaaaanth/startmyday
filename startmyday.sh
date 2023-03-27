@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# initializing variables
+# Initialising variables
 name=$(whoami)
 ip=$(curl -s https://ipinfo.io/ip)
 city=$(curl -s http://ip-api.com/json/$ip | jq '.["city"]')
 status=$(curl -s http://ip-api.com/json/$ip | jq '.["status"]')
 weather=$(curl -s wttr.in/$city?format=3)
 
-# greetings
+# greeting the user
 greet() {
     echo "Hello $name"
     sleep 1
     echo -e "Let's have a look at the forecast for the day!\n"
 }
 
-# weather
+# weather updates based on location
 weather() {
     echo -n "Want some weather updates? (y/n): "
     read response
@@ -64,12 +64,12 @@ weather() {
 
 }
 
-
-
+# main function
 flow() {
     greet
     sleep 2
     weather
 }
 
+# calling the main function
 flow
