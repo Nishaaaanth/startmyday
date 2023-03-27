@@ -37,4 +37,4 @@ If you can't run the script make sure you do the following to make the script ex
 chmod +x ./startmyday.sh
 ```
 &nbsp;
-### Feel free to contribute! :heart:
+<div align="center"><h4>Feel free to contribute! :heart:</h4></div>
