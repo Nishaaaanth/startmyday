@@ -1,23 +1,32 @@
 #!/bin/bash
 
+# Add do while loop wherever invalid input is given
+# Add a todo list functionality
+#
+#
+#
+
 # Initialising variables
 name=$(whoami)
 ip=$(curl -s https://ipinfo.io/ip)
 city=$(curl -s http://ip-api.com/json/$ip | jq '.["city"]')
 status=$(curl -s http://ip-api.com/json/$ip | jq '.["status"]')
-weather=$(curl -s wttr.in/$city?format=3)
+dCity=$(grep -oP '(?<=dCity=).+' ~/.bashrc)
 
 # greeting the user
 greet() {
     echo "Hello $name"
     sleep 1
-    echo -e "Let's have a look at the forecast for the day!\n"
+    echo -e "Let's have a look at the forecast for the day!\n\n"
 }
 
 # weather updates based on location
 weather() {
     echo -n "Want some weather updates? (y/n): "
     read response
+    echo -e "\n"
+
+    sleep 1
 
     if [ $response == 'y' ] || [ $response == 'Y' ]; then
 
@@ -28,37 +37,71 @@ weather() {
         
         echo -n "Enter your choice here: "
         read location
+        echo -e "\n"
 
         case $location in
             1)
                 if [ $status == '"success"' ]; then
+                    weather=$(curl -s wttr.in/$city?format=3)
                     echo "Today's weather in $weather"
                 else 
-                    echo "Didn't find the city you live in sorry :(."
+                    echo "Didn't find the weather info for the city you provided in sorry :(."
                 fi
                 ;;
 
             2)
-                echo "Please provide your default city"
-                read dCity
+                if [ -n dCity ]; then
+                    weather=$(curl -s wttr.in/$dCity?format=3)
+                    echo "Today's weather in $weather"
+                elif [ -z dCity ]; then
+                    echo -n "Please provide your default city: "
+                    read dCity
+                    echo "dCity=$dCity" >> ~/.bashrc
+                    weather=$(curl -s wttr.in/$dCity?format=3)
 
-                # insert the city inside bashrc. If the city is already present then don't prompt for city. If the user wants to change the default location then that question should be asked in the echo above
+                    if [ -n weather ]; then
+                        echo "Today's weather in $weather"
+                    else
+                        echo "Didn't find the weather info for the city you provided in sorry :(."
+                    fi
+                fi
 
-                weather=$(curl -s wttr.in/$city?format=3)
-                echo "Today's weather in $weather"
+                echo -n "Do you want to change your defualt city? (y/n): "
+                read change
+
+                if [ "$change" == 'y' ] || [ "$change" == 'Y' ]; then
+                    sed -i '/dCity/d' ~/.bashrc
+                    echo -n "Please provide your default city: "
+                    read dCity
+                    echo "dCity=$dCity" >> ~/.bashrc
+                    weather=$(curl -s wttr.in/$dCity?format=3)
+
+                    if [ -n weather ]; then
+                        echo "Today's weather in $weather"
+                    else
+                        echo "Didn't find the weather info for the city you provided in sorry :(."
+                    fi
+                elif [ "$change" == 'n' ] || [ "$change" == 'N' ]; then
+                    echo "Okay, wishing you a happy day ahead!"
+                else
+                    echo "Invalid choice"
+                fi
                 ;;
 
             3)
-                echo "Please provide your default city"
+                echo -n "Please provide your city name: "
                 read city
 
                 weather=$(curl -s wttr.in/$city?format=3)
                 echo "Today's weather in $weather"
                 ;;
+            *) 
+                echo "Invalid choice"
+                ;;
         esac
 
     else
-        echo "Okay, wishing you with a happy day ahead"
+        echo "Okay, wishing you a happy day ahead!"
         return 0
     fi
 
@@ -67,7 +110,7 @@ weather() {
 # main function
 flow() {
     greet
-    sleep 2
+    sleep 3
     weather
 }
 
