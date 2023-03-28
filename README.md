@@ -32,6 +32,7 @@ cd startmyday
 ```
 
 &nbsp;
+
 If you can't run the script make sure you do the following to make the script executable
 
 ```shell
