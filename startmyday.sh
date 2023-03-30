@@ -48,11 +48,16 @@ weather() {
 
             2)
                 if [ -n dCity ]; then
+                    declare -g city=$dCity
+
                     weather=$(curl -s wttr.in/$dCity?format=3)
                     echo "Today's weather in $weather"
                 elif [ -z dCity ]; then
                     echo -n "Please provide your default city: "
                     read dCity
+
+                    declare -g city=$dCity
+
                     echo "dCity=$dCity" >> ~/.bashrc
                     weather=$(curl -s wttr.in/$dCity?format=3)
 
@@ -70,6 +75,9 @@ weather() {
                     sed -i '/dCity/d' ~/.bashrc
                     echo -n "Please provide your default city: "
                     read dCity
+
+                    declare -g city=$dCity
+
                     echo "dCity=$dCity" >> ~/.bashrc
                     weather=$(curl -s wttr.in/$dCity?format=3)
 
@@ -89,6 +97,8 @@ weather() {
                 echo -n "Please provide your city name: "
                 read city
 
+                declare -g city=$dCity
+
                 weather=$(curl -s wttr.in/$city?format=3)
                 echo "Today's weather in $weather"
                 ;;
@@ -102,6 +112,16 @@ weather() {
         return 0
     fi
 
+}
+
+# todo list functionality
+# todo should be added at night and should be displayed in the morning
+# it should be saved in a file
+todo() {
+   echo "Let's have a look at todays tasks shall we?" 
+   sleep 1
+
+   time=$(curl http://worldtimeapi.org/api/timezone/city)
 }
 
 # main function
