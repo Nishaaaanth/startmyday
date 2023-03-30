@@ -2,9 +2,6 @@
 
 # Add do while loop wherever invalid input is given
 # Add a todo list functionality
-#
-#
-#
 
 # Initialising variables
 name=$(whoami)
