@@ -9,6 +9,7 @@ ip=$(curl -s https://ipinfo.io/ip)
 city=$(curl -s http://ip-api.com/json/$ip | jq '.["city"]')
 status=$(curl -s http://ip-api.com/json/$ip | jq '.["status"]')
 dCity=$(grep -oP '(?<=dCity=).+' ~/.bashrc)
+time=$(curl http://worldtimeapi.org/api/timezone/city)
 
 # greeting the user
 greet() {
@@ -120,8 +121,6 @@ weather() {
 todo() {
    echo "Let's have a look at todays tasks shall we?" 
    sleep 1
-
-   time=$(curl http://worldtimeapi.org/api/timezone/city)
 }
 
 # main function
