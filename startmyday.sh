@@ -9,13 +9,23 @@ ip=$(curl -s https://ipinfo.io/ip)
 city=$(curl -s http://ip-api.com/json/$ip | jq '.["city"]')
 status=$(curl -s http://ip-api.com/json/$ip | jq '.["status"]')
 dCity=$(grep -oP '(?<=dCity=).+' ~/.bashrc)
-time=$(curl http://worldtimeapi.org/api/timezone/city)
+time=$(curl -s http://worldtimeapi.org/api/timezone/city)
+width=$(tput cols)
+
+# line break
+break() {
+    for (( i=0 ; i<$width ; i++ )); do
+        echo -n "-"
+    done
+}
+
 
 # greeting the user
 greet() {
     echo "Hello $name"
     sleep 1
-    echo -e "Let's have a look at the forecast for the day!\n\n"
+    echo -e "Let's have a look at the forecast for the day!\n"
+    
 }
 
 # weather updates based on location
@@ -108,10 +118,11 @@ weather() {
                 ;;
         esac
 
-    else
+    elif [ $response == 'n' ] || [ $response == 'N' ]; then
         echo "Okay, wishing you a happy day ahead!"
-        return 0
     fi
+
+
 
 }
 
@@ -126,8 +137,12 @@ todo() {
 # main function
 flow() {
     greet
+    break
+
     sleep 3
+
     weather
+    break
 }
 
 # calling the main function
