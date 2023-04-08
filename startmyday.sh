@@ -1,15 +1,12 @@
 #!/bin/bash
 
-# Add do while loop wherever invalid input is given
-# Add a todo list functionality
-
 # Initialising variables
 name=$(whoami)
 ip=$(curl -s https://ipinfo.io/ip)
 city=$(curl -s http://ip-api.com/json/$ip | jq '.["city"]')
 status=$(curl -s http://ip-api.com/json/$ip | jq '.["status"]')
 dCity=$(grep -oP '(?<=dCity=).+' ~/.bashrc)
-time=$(curl -s http://worldtimeapi.org/api/timezone/city)
+time=$(curl -s http://worldtimeapi.org/api/timezone/$continent/$city)
 width=$(tput cols)
 
 # line break
@@ -19,13 +16,22 @@ break() {
     done
 }
 
+declarer() {
+    declare -g city=$dCity
+}
 
 # greeting the user
 greet() {
     echo "Hello $name"
     sleep 1
+
     echo -e "Let's have a look at the forecast for the day!\n"
-    
+
+    echo -e "What do you want to do today?\n"
+    echo -e "1. Let me get some weather reports today."
+    echo -e "2. Let know todos for today."
+    echo -e "3. Both"
+    read option
 }
 
 # weather updates based on location
@@ -59,7 +65,7 @@ weather() {
 
             2)
                 if [ -n dCity ]; then
-                    declare -g city=$dCity
+                    dDeclare
 
                     weather=$(curl -s wttr.in/$dCity?format=3)
                     echo "Today's weather in $weather"
@@ -67,7 +73,7 @@ weather() {
                     echo -n "Please provide your default city: "
                     read dCity
 
-                    declare -g city=$dCity
+                    dDeclare
 
                     echo "dCity=$dCity" >> ~/.bashrc
                     weather=$(curl -s wttr.in/$dCity?format=3)
@@ -87,7 +93,7 @@ weather() {
                     echo -n "Please provide your default city: "
                     read dCity
 
-                    declare -g city=$dCity
+                    dDeclare
 
                     echo "dCity=$dCity" >> ~/.bashrc
                     weather=$(curl -s wttr.in/$dCity?format=3)
@@ -108,7 +114,7 @@ weather() {
                 echo -n "Please provide your city name: "
                 read city
 
-                declare -g city=$dCity
+                    declare -g city=$dCity
 
                 weather=$(curl -s wttr.in/$city?format=3)
                 echo "Today's weather in $weather"
