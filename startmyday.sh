@@ -16,7 +16,7 @@ break() {
     done
 }
 
-declarer() {
+dDeclare() {
     declare -g city=$dCity
 }
 
