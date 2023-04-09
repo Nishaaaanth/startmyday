@@ -28,6 +28,11 @@ globalCity() {
     declare -g city=$dCity
 }
 
+# wishing message
+wish() {
+    echo "Wishing you a happy day!"
+}
+
 # weather based on city
 ipCity() {
     if [ $status == '"success"' ]; then
@@ -36,7 +41,7 @@ ipCity() {
     else 
         echo "Didn't find the weather info for the city you provided in sorry :(."
 
-        sleep gSleep
+        sleep $gSleep
         weather
     fi
 }
@@ -61,12 +66,12 @@ defaultCity() {
         else
             echo "Didn't find the weather info for the city you provided in sorry :(."
 
-            sleep gSleep
+            sleep $gSleep
             weather
         fi
     fi
 
-    echo -n "Do you want to change your defualt city? (y/n): "
+    echo -n "Do you want to change your default city? (y/n): "
     read change
 
     if [ "$change" == 'y' ] || [ "$change" == 'Y' ]; then
@@ -85,7 +90,7 @@ defaultCity() {
         fi
 
     elif [ "$change" == 'n' ] || [ "$change" == 'N' ]; then
-        echo "Okay, wishing you a happy day ahead!"
+        echo "Okay, bye"
     else
         echo "Invalid choice"
         weather
@@ -123,14 +128,6 @@ greet() {
 
 # weather updates based on location
 weather() {
-    echo -n "Want some weather updates? (y/n): "
-    read response
-    echo -e "\n"
-
-    sleep intSleep
-
-    if [ $response == 'y' ] || [ $response == 'Y' ]; then
-
         echo "What do you want your weather update to be based on:"
         echo "    1. IP Location"
         echo "    2. Default Location"
@@ -140,7 +137,7 @@ weather() {
         read location
         echo -e "\n"
 
-        sleep intSleep
+        sleep $intSleep
 
         case $location in
             1)
@@ -159,13 +156,6 @@ weather() {
                 weather
                 ;;
         esac
-
-    elif [ $response == 'n' ] || [ $response == 'N' ]; then
-        echo "Okay, wishing you a happy day ahead!"
-    else
-        echo "Invalid choice"
-        weather
-    fi
 }
 
 # todo list functionality
@@ -182,26 +172,36 @@ flow() {
     
     if [ $option == '1' ]; then
         break
-        sleep gSleep
+        sleep $gSleep
         weather
+
+        sleep $gSleep
+        wish
 
     elif [ $option == '2' ]; then
         break
-        sleep gSleep
-        echo "todo"
-        # todo
+        sleep $gSleep
+        todo
+
+        sleep $gSleep
+        wish
         
     elif [ $option == '3' ]; then
         break
-        sleep gSleep
+        sleep $gSleep
         weather
+
         break
-        sleep gSleep
-        echo "todo"
-        # todo
+        sleep $gSleep
+        todo
+
+        sleep $gSleep
+        wish
         
     else 
         echo "nothing that I can do about it"
+        sleep $gSleep
+        wish
     fi
 }
 
