@@ -9,6 +9,13 @@ dCity=$(grep -oP '(?<=dCity=).+' ~/.bashrc)
 time=$(curl -s http://worldtimeapi.org/api/timezone/$continent/$city)
 width=$(tput cols)
 
+# sleep can be edited from here
+# global sleep
+gSleep=3
+# intermediate sleep
+intSleep=1
+
+# functions
 # line break
 break() {
     for (( i=0 ; i<$width ; i++ )); do
@@ -16,21 +23,101 @@ break() {
     done
 }
 
-dDeclare() {
+# globalizing the default city to city
+globalCity() {
     declare -g city=$dCity
+}
+
+# weather based on city
+ipCity() {
+    if [ $status == '"success"' ]; then
+        weather=$(curl -s wttr.in/$city?format=3)
+        echo "Today's weather in $weather"
+    else 
+        echo "Didn't find the weather info for the city you provided in sorry :(."
+
+        sleep gSleep
+        weather
+    fi
+}
+
+
+defaultCity() {
+    if [ -n dCity ]; then
+        globalCity
+        weather=$(curl -s wttr.in/$dCity?format=3)
+        echo "Today's weather in $weather"
+
+    elif [ -z dCity ]; then
+        echo -n "Please provide your default city: "
+        read dCity
+        globalCity
+
+        echo "dCity=$dCity" >> ~/.bashrc
+        weather=$(curl -s wttr.in/$dCity?format=3)
+
+        if [ -n weather ]; then
+            echo "Today's weather in $weather"
+        else
+            echo "Didn't find the weather info for the city you provided in sorry :(."
+
+            sleep gSleep
+            weather
+        fi
+    fi
+
+    echo -n "Do you want to change your defualt city? (y/n): "
+    read change
+
+    if [ "$change" == 'y' ] || [ "$change" == 'Y' ]; then
+        echo -n "Please provide your default city: "
+        read dCity
+        globalCity
+        weather=$(curl -s wttr.in/$dCity?format=3)
+
+        if [ -n weather ]; then
+            sed -i '/dCity/d' ~/.bashrc
+            echo "dCity=$dCity" >> ~/.bashrc
+            echo "Today's weather in $weather"
+        else
+            echo "Didn't find the weather info for the city you provided in sorry :(."
+            weather
+        fi
+
+    elif [ "$change" == 'n' ] || [ "$change" == 'N' ]; then
+        echo "Okay, wishing you a happy day ahead!"
+    else
+        echo "Invalid choice"
+        weather
+    fi
+}
+
+manualCity() {
+    echo -n "Please provide your city name: "
+    read city
+    globalCity
+    weather=$(curl -s wttr.in/$city?format=3)
+
+    if [ -n weather ]; then
+        echo "Today's weather in $weather"
+    else
+        echo "Didn't find the weather info for the city you provided in sorry :(."
+        weather
+    fi
 }
 
 # greeting the user
 greet() {
     echo "Hello $name"
-    sleep 1
+    sleep $intSleep
 
     echo -e "Let's have a look at the forecast for the day!\n"
+    sleep $intSleep
 
-    echo -e "What do you want to do today?\n"
-    echo -e "1. Let me get some weather reports today."
-    echo -e "2. Let know todos for today."
-    echo -e "3. Both"
+    echo "What do you want to do today?"
+    echo "1. Let me get some weather reports today."
+    echo "2. Let know todos for today."
+    echo "3. Both"
     read option
 }
 
@@ -40,11 +127,11 @@ weather() {
     read response
     echo -e "\n"
 
-    sleep 1
+    sleep intSleep
 
     if [ $response == 'y' ] || [ $response == 'Y' ]; then
 
-        echo "what do you want your weather update to be based on:"
+        echo "What do you want your weather update to be based on:"
         echo "    1. IP Location"
         echo "    2. Default Location"
         echo "    3. Manual location"
@@ -53,83 +140,32 @@ weather() {
         read location
         echo -e "\n"
 
+        sleep intSleep
+
         case $location in
             1)
-                if [ $status == '"success"' ]; then
-                    weather=$(curl -s wttr.in/$city?format=3)
-                    echo "Today's weather in $weather"
-                else 
-                    echo "Didn't find the weather info for the city you provided in sorry :(."
-                fi
+                ipCity
                 ;;
 
             2)
-                if [ -n dCity ]; then
-                    dDeclare
-
-                    weather=$(curl -s wttr.in/$dCity?format=3)
-                    echo "Today's weather in $weather"
-                elif [ -z dCity ]; then
-                    echo -n "Please provide your default city: "
-                    read dCity
-
-                    dDeclare
-
-                    echo "dCity=$dCity" >> ~/.bashrc
-                    weather=$(curl -s wttr.in/$dCity?format=3)
-
-                    if [ -n weather ]; then
-                        echo "Today's weather in $weather"
-                    else
-                        echo "Didn't find the weather info for the city you provided in sorry :(."
-                    fi
-                fi
-
-                echo -n "Do you want to change your defualt city? (y/n): "
-                read change
-
-                if [ "$change" == 'y' ] || [ "$change" == 'Y' ]; then
-                    sed -i '/dCity/d' ~/.bashrc
-                    echo -n "Please provide your default city: "
-                    read dCity
-
-                    dDeclare
-
-                    echo "dCity=$dCity" >> ~/.bashrc
-                    weather=$(curl -s wttr.in/$dCity?format=3)
-
-                    if [ -n weather ]; then
-                        echo "Today's weather in $weather"
-                    else
-                        echo "Didn't find the weather info for the city you provided in sorry :(."
-                    fi
-                elif [ "$change" == 'n' ] || [ "$change" == 'N' ]; then
-                    echo "Okay, wishing you a happy day ahead!"
-                else
-                    echo "Invalid choice"
-                fi
+                defaultCity
                 ;;
 
             3)
-                echo -n "Please provide your city name: "
-                read city
-
-                    declare -g city=$dCity
-
-                weather=$(curl -s wttr.in/$city?format=3)
-                echo "Today's weather in $weather"
+                manualCity
                 ;;
             *) 
                 echo "Invalid choice"
+                weather
                 ;;
         esac
 
     elif [ $response == 'n' ] || [ $response == 'N' ]; then
         echo "Okay, wishing you a happy day ahead!"
+    else
+        echo "Invalid choice"
+        weather
     fi
-
-
-
 }
 
 # todo list functionality
@@ -143,13 +179,30 @@ todo() {
 # main function
 flow() {
     greet
-    break
+    
+    if [ $option == '1' ]; then
+        break
+        sleep gSleep
+        weather
 
-    sleep 3
-
-    weather
-    break
+    elif [ $option == '2' ]; then
+        break
+        sleep gSleep
+        echo "todo"
+        # todo
+        
+    elif [ $option == '3' ]; then
+        break
+        sleep gSleep
+        weather
+        break
+        sleep gSleep
+        echo "todo"
+        # todo
+        
+    else 
+        echo "nothing that I can do about it"
+    fi
 }
 
-# calling the main function
 flow
