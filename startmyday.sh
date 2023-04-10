@@ -1,4 +1,7 @@
 #!/bin/bash
+#things to remember:
+# please create a feature where the task is deleted once new task sets are being inputted with the permission of the user but before that previous task list should be displayed. Or have a option to delete some existing task and append some more if needed
+# dCity and tasks shouldn't collide
 
 # Initialising variables
 name=$(whoami)
@@ -163,8 +166,19 @@ weather() {
 # it should be saved in a file
 todo() {
    echo "Let's have a look at todays tasks shall we?" 
+   echo "Adding some tasks are we? (type 'q' to quit adding task)" 
    sleep 1
 
+   read task
+
+   until [ task == 'q' ];
+   do
+       read task
+
+       local i=1
+       echo "$i. $task">~/.bashrc
+       i=i+1
+   done
 
    echo "Wishing you with luck to finish of the task!"
 }
