@@ -164,6 +164,9 @@ weather() {
 todo() {
    echo "Let's have a look at todays tasks shall we?" 
    sleep 1
+
+
+   echo "Wishing you with luck to finish of the task!"
 }
 
 # main function
